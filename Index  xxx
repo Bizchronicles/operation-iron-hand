@@ -1,0 +1,163 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>Operation Iron Hand</title>
+<style>
+:root{--bg:#0b1120;--panel:#151f30;--line:#29364a;--gold:#e8b95b;--text:#f5f7fb;--muted:#9aa9bd;--green:#52d6a0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px Arial,sans-serif}
+header{padding:22px 18px;background:#101827;border-bottom:1px solid var(--line)}
+.brand{color:var(--gold);font-weight:800;letter-spacing:1.5px;font-size:17px}
+.sub{color:var(--muted);font-size:12px;margin-top:7px}
+main{max-width:900px;margin:auto;padding:18px 14px 95px}
+h1{font-size:25px;margin:8px 0}
+h2{font-size:18px;margin:0 0 14px}
+p{line-height:1.5}
+.muted{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:18px 0}
+.card{background:var(--panel);border:1px solid var(--line);padding:15px;border-radius:14px;min-width:0}
+.metric{font-size:23px;font-weight:750;margin:10px 0 5px;overflow-wrap:anywhere}
+.gold{color:var(--gold)}
+.green{color:var(--green)}
+section{margin:24px 0}
+button,input,select{font:inherit}
+button{border:0;border-radius:9px;padding:12px 14px;background:var(--gold);color:#151515;font-weight:700;cursor:pointer}
+button.secondary{background:#26354a;color:white;border:1px solid #394960}
+input,select{width:100%;padding:12px;margin:6px 0 12px;border-radius:8px;border:1px solid var(--line);background:#0e1726;color:white}
+label{display:block;font-size:13px;color:var(--muted)}
+.formrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-around;background:#101827;border-top:1px solid var(--line);padding:10px 2px calc(10px + env(safe-area-inset-bottom));z-index:5}
+nav button{background:transparent;color:var(--muted);padding:9px 6px;font-size:11px}
+nav button.active{color:var(--gold)}
+.view{display:none}.view.active{display:block}
+.item{padding:12px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px}
+.item:last-child{border-bottom:0}
+.notice{background:#302817;border:1px solid #6c5426;padding:12px;border-radius:10px;color:#f3d99c;font-size:13px;line-height:1.5}
+.small{font-size:12px;color:var(--muted)}
+@media(min-width:650px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">OPERATION IRON HAND</div>
+  <div class="sub">INTELLIGENT BUSINESS COMMAND CENTRE</div>
+</header>
+<main>
+<div id="dashboard" class="view active">
+  <p class="muted" id="today"></p>
+  <h1>Business overview</h1>
+  <p class="muted">Your operations, in one place.</p>
+  <div class="grid">
+    <div class="card"><div class="muted">Recorded sales</div><div class="metric gold" id="salesTotal">KSh 0</div><div class="small">All recorded sales</div></div>
+    <div class="card"><div class="muted">Inventory items</div><div class="metric" id="stockCount">0</div><div class="small">Units in stock</div></div>
+    <div class="card"><div class="muted">Transactions</div><div class="metric" id="saleCount">0</div><div class="small">Sales recorded</div></div>
+    <div class="card"><div class="muted">Low stock alerts</div><div class="metric green" id="lowCount">0</div><div class="small">Items needing attention</div></div>
+  </div>
+  <section><h2>Priority action centre</h2><div class="card" id="alerts"></div></section>
+  <section><h2>Quick actions</h2><div class="grid">
+    <button onclick="showView('sales')">＋ Record sale</button>
+    <button class="secondary" onclick="showView('inventory')">＋ Add inventory</button>
+  </div></section>
+  <section><h2>Recent business activity</h2><div class="card" id="recent"></div></section>
+</div>
+
+<div id="sales" class="view">
+  <h1>Sales management</h1><p class="muted">Record a sale and update available stock.</p>
+  <div class="card">
+    <form id="saleForm">
+      <label>Product</label><select id="saleProduct" required></select>
+      <div class="formrow">
+        <div><label>Quantity sold</label><input id="saleQty" type="number" min="1" step="1" value="1" required></div>
+        <div><label>Price per unit (KSh)</label><input id="salePrice" type="number" min="0.01" step="0.01" required></div>
+      </div>
+      <button type="submit">Record sale</button>
+    </form>
+  </div>
+  <section><h2>Sales history</h2><div class="card" id="salesHistory"></div></section>
+</div>
+
+<div id="inventory" class="view">
+  <h1>Inventory control</h1><p class="muted">Track stock and identify items that need replenishment.</p>
+  <div class="card"><form id="stockForm">
+    <label>Product name</label><input id="productName" maxlength="80" placeholder="e.g. Wheat flour" required>
+    <div class="formrow">
+      <div><label>Opening quantity</label><input id="productQty" type="number" min="0" step="1" required></div>
+      <div><label>Sale price (KSh)</label><input id="productPrice" type="number" min="0.01" step="0.01" required></div>
+    </div>
+    <label>Low-stock alert threshold</label><input id="productThreshold" type="number" min="0" step="1" value="5" required>
+    <button type="submit">Add product</button>
+  </form></div>
+  <section><h2>Stock register</h2><div class="card" id="stockList"></div></section>
+</div>
+
+<div id="chronicle" class="view">
+  <h1>Business Chronicle</h1><p class="muted">A running record of important business events.</p>
+  <div class="card"><form id="eventForm">
+    <label>Event description</label><input id="eventText" maxlength="300" placeholder="Describe the business event" required>
+    <button type="submit">Record event</button>
+  </form></div>
+  <section><h2>Activity log</h2><div class="card" id="eventList"></div></section>
+</div>
+
+<div id="insights" class="view">
+  <h1>Business intelligence</h1><p class="muted">Operational summaries based on your recorded data.</p>
+  <div class="card"><h2>Current assessment</h2><div id="insightText"></div></div>
+  <section><h2>Data and security</h2>
+    <div class="notice">Prototype only. Data is stored in this browser on this device. It is not synced to Supabase, backed up remotely, or protected by user authentication. Do not enter confidential customer or financial information.</div>
+  </section>
+  <section><button class="secondary" onclick="exportData()">Export business data (JSON)</button></section>
+</div>
+</main>
+<nav>
+<button class="active" data-view="dashboard" onclick="showView('dashboard')">⌂<br>Overview</button>
+<button data-view="sales" onclick="showView('sales')">↗<br>Sales</button>
+<button data-view="inventory" onclick="showView('inventory')">▦<br>Stock</button>
+<button data-view="chronicle" onclick="showView('chronicle')">≡<br>Chronicle</button>
+<button data-view="insights" onclick="showView('insights')">✧<br>Insights</button>
+</nav>
+<script>
+const KEY='oih-prototype-v1';
+let state={products:[],sales:[],events:[]};
+try{const saved=localStorage.getItem(KEY);if(saved)state=JSON.parse(saved)}catch(e){}
+const money=n=>'KSh '+Number(n||0).toLocaleString('en-KE',{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){alert('Could not save locally. Export your data and check browser storage.')}render()}
+function log(text){state.events.unshift({text,time:new Date().toLocaleString()});state.events=state.events.slice(0,300)}
+function showView(id){document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x.dataset.view===id));render();window.scrollTo(0,0)}
+document.getElementById('today').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+document.getElementById('saleProduct').addEventListener('change',e=>{const p=state.products.find(p=>p.id===e.target.value);if(p)document.getElementById('salePrice').value=p.price});
+document.getElementById('stockForm').addEventListener('submit',e=>{
+ e.preventDefault();const name=document.getElementById('productName').value.trim(),qty=Number(document.getElementById('productQty').value),price=Number(document.getElementById('productPrice').value),threshold=Number(document.getElementById('productThreshold').value);
+ if(!name||qty<0||price<=0||threshold<0)return alert('Check the product details.');
+ if(state.products.some(p=>p.name.toLowerCase()===name.toLowerCase()))return alert('That product already exists. Record stock separately in a future version.');
+ state.products.push({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),name,qty,price,threshold});log('Added inventory product: '+name);e.target.reset();document.getElementById('productThreshold').value=5;save();
+});
+document.getElementById('saleForm').addEventListener('submit',e=>{
+ e.preventDefault();const p=state.products.find(p=>p.id===document.getElementById('saleProduct').value),qty=Number(document.getElementById('saleQty').value),price=Number(document.getElementById('salePrice').value);
+ if(!p)return alert('Add a product to inventory first.');
+ if(!Number.isInteger(qty)||qty<1||qty>p.qty)return alert('Quantity must be a whole number available in stock.');
+ if(!Number.isFinite(price)||price<=0)return alert('Enter a valid sale price.');
+ p.qty-=qty;state.sales.unshift({id:Date.now(),name:p.name,qty,price,total:qty*price,time:new Date().toLocaleString()});log('Sale recorded: '+qty+' × '+p.name+' for '+money(qty*price));document.getElementById('saleQty').value=1;save();
+});
+document.getElementById('eventForm').addEventListener('submit',e=>{e.preventDefault();const t=document.getElementById('eventText').value.trim();if(!t)return;log(t);e.target.reset();save()});
+function rows(items,empty){return items.length?items.join(''):'<p class="muted">'+empty+'</p>'}
+function render(){
+ const total=state.sales.reduce((a,s)=>a+s.total,0),units=state.products.reduce((a,p)=>a+p.qty,0),low=state.products.filter(p=>p.qty<=p.threshold);
+ document.getElementById('salesTotal').textContent=money(total);document.getElementById('stockCount').textContent=units.toLocaleString();document.getElementById('saleCount').textContent=state.sales.length;document.getElementById('lowCount').textContent=low.length;
+ document.getElementById('alerts').innerHTML=low.length?rows(low.map(p=>'<div class="item"><span>'+esc(p.name)+'</span><span class="gold">'+p.qty+' left</span></div>'),''):'<p class="green">No low-stock alerts. Add inventory to begin monitoring.</p>';
+ document.getElementById('recent').innerHTML=rows(state.events.slice(0,5).map(x=>'<div class="item"><span>'+esc(x.text)+'</span><span class="small">'+esc(x.time)+'</span></div>'),'No activity recorded yet.');
+ const sel=document.getElementById('saleProduct'),old=sel.value;sel.innerHTML='<option value="">Choose product</option>'+state.products.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+' ('+p.qty+' available)</option>').join('');if(state.products.some(p=>p.id===old))sel.value=old;
+ document.getElementById('stockList').innerHTML=rows(state.products.map(p=>'<div class="item"><span><b>'+esc(p.name)+'</b><br><span class="small">Alert at '+p.threshold+' units · '+money(p.price)+'/unit</span></span><span class="'+(p.qty<=p.threshold?'gold':'green')+'">'+p.qty+' units</span></div>'),'No products yet.');
+ document.getElementById('salesHistory').innerHTML=rows(state.sales.slice(0,50).map(s=>'<div class="item"><span>'+esc(s.name)+' × '+s.qty+'<br><span class="small">'+esc(s.time)+'</span></span><b>'+money(s.total)+'</b></div>'),'No sales recorded yet.');
+ document.getElementById('eventList').innerHTML=rows(state.events.map(x=>'<div class="item"><span>'+esc(x.text)+'</span><span class="small">'+esc(x.time)+'</span></div>'),'No events recorded yet.');
+ document.getElementById('insightText').innerHTML='<p>Total recorded sales: <b>'+money(total)+'</b></p><p>Products tracked: <b>'+state.products.length+'</b></p><p>Low-stock products: <b>'+low.length+'</b></p><p>Recorded business events: <b>'+state.events.length+'</b></p><p class="muted">These are local calculations, not AI-generated forecasts or verified accounting reports.</p>';
+}
+function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='operation-iron-hand-data.json';a.click();URL.revokeObjectURL(url)}
+render();
+</script>
+</body>
+</html>
